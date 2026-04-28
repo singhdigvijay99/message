@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Just For You 🌸</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+/* =================== ROOT =================== */
+:root {
+  --rose:#E8748A; --blush:#F2A7B5; --peach:#F7C8A0;
+  --cream:#FDF6EE; --gold:#D4956A; --deep:#3D2B2B;
+  --mid:#7A5C5C; --soft:#B89090; --purple:#C084FC;
+  --dark1:#1A1025; --dark2:#2D1525;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Nunito',sans-serif;
+  background:var(--cream);
+  color:var(--deep);
+  min-height:100vh;
+  overflow-x:hidden;
+  overflow-y:auto;
+  cursor:none;
+}
+
+/* =================== CURSOR =================== */
+#cursor{
+  width:14px;height:14px;
+  background:var(--rose);
+  border-radius:50%;
+  position:fixed;top:0;left:0;
+  pointer-events:none;z-index:99999;
+  transform:translate(-50%,-50%);
+  transition:width .18s,height .18s,background .18s;
+  mix-blend-mode:multiply;
+}
+#cursorRing{
+  width:40px;height:40px;
+  border:1.5px solid var(--rose);
+  border-radius:50%;
+  position:fixed;top:0;left:0;
+  pointer-events:none;z-index:99998;
+  transform:translate(-50%,-50%);
+  transition:left .09s ease,top .09s ease;
+  opacity:.45;
+}
+
+/* =================== PARTICLES =================== */
+#particles{
+  position:fixed;inset:0;
+  pointer-events:none;z-index:0;
+}
+
+/* =================== TRANSITION OVERLAY =================== */
+#transOverlay{
+  position:fixed;inset:0;
+  z-index:9000;
+  pointer-events:none;
+  display:flex;align-items:center;justify-content:center;
+}
+.overlay-circle{
+  width:0;height:0;
+  border-radius:50%;
+  position:absolute;
+  transform:translate(-50%,-50%);
+  transition:none;
+}
+
+/* =================== NAV =================== */
+#navBar{
+  position:fixed;top:20px;left:50%;
+  transform:translateX(-50%);
+  z-index:8000;
+  display:flex;gap:7px;
+  background:rgba(255,255,255,.18);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,.35);
+  border-radius:50px;
+  padding:7px 10px;
+  transition:background .4s,border .4s;
+}
+#navBar.dark-nav{
+  background:rgba(0,0,0,.25);
+  border-color:rgba(255,255,255,.12);
+}
+.nav-dot{
+  width:9px;height:9px;
+  border-radius:50%;
+  background:rgba(0,0,0,.18);
+  transition:all .45s cubic-bezier(.34,1.56,.64,1);
+  cursor:pointer;
+}
+#navBar.dark-nav .nav-dot{background:rgba(255,255,255,.18);}
+.nav-dot.active{width:28px;border-radius:50px;background:var(--rose);}
+.nav-dot.done{background:rgba(0,0,0,.35);}
+#navBar.dark-nav .nav-dot.done{background:rgba(255,255,255,.35);}
+
+/* =================== PAGE BASE =================== */
+.page{
+  display:none;
+  min-height:100vh;
+  position:relative;
+  z-index:1;
+  overflow-y:auto;
+  overflow-x:hidden;
+}
+.page.active{display:flex;flex-direction:column;}
+
+/* page enter animations */
+.page-entering > *{
+  animation:pageChildIn .6s cubic-bezier(.22,1,.36,1) both;
+}
+.page-entering > *:nth-child(1){animation-delay:.05s;}
+.page-entering > *:nth-child(2){animation-delay:.12s;}
+.page-entering > *:nth-child(3){animation-delay:.19s;}
+.page-entering > *:nth-child(4){animation-delay:.26s;}
+.page-entering > *:nth-child(5){animation-delay:.33s;}
+.page-entering > *:nth-child(6){animation-delay:.40s;}
+@keyframes pageChildIn{
+  from{opacity:0;transform:translateY(28px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+/* =================== BACK BTN =================== */
+.back-row{position:absolute;top:22px;left:22px;z-index:10;}
+.back-btn{
+  background:rgba(0,0,0,.06);
+  border:none;border-radius:50px;
+  padding:9px 18px;
+  font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:600;
+  color:var(--mid);cursor:pointer;
+  display:flex;align-items:center;gap:6px;
+  transition:all .2s;
+}
+.back-btn:hover{background:rgba(0,0,0,.12);}
+.dark-back .back-btn{background:rgba(255,255,255,.1);color:rgba(255,255,255,.55);}
+.dark-back .back-btn:hover{background:rgba(255,255,255,.18);color:white;}
+
+/* =================== CTA BUTTON =================== */
+.cta-btn{
+  display:inline-flex;align-items:center;gap:10px;
+  background:linear-gradient(135deg,var(--rose),var(--gold));
+  color:white;padding:16px 38px;border-radius:50px;
+  font-size:1rem;font-weight:700;font-family:'Nunito',sans-serif;
+  cursor:pointer;border:none;
+  transition:all .35s cubic-bezier(.34,1.56,.64,1);
+  letter-spacing:.02em;
+  box-shadow:0 6px 28px rgba(232,116,138,.38);
+  position:relative;overflow:hidden;
+}
+.cta-btn::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);
+  opacity:0;transition:opacity .3s;
+}
+.cta-btn:hover::after{opacity:1;}
+.cta-btn:hover{transform:translateY(-4px) scale(1.03);box-shadow:0 14px 44px rgba(232,116,138,.48);}
+.cta-btn:active{transform:scale(.97);}
+.cta-btn .arrow{transition:transform .3s;}
+.cta-btn:hover .arrow{transform:translateX(5px);}
+
+/* =================== CONFETTI =================== */
+.confetti-piece{
+  position:fixed;width:9px;height:9px;
+  top:-10px;pointer-events:none;z-index:99997;
+  border-radius:2px;
+  animation:cfall 3.8s ease-in forwards;
+}
+@keyframes cfall{
+  0%{transform:translateY(0) rotate(0deg) scale(1);opacity:1;}
+  80%{opacity:1;}
+  100%{transform:translateY(108vh) rotate(800deg) scale(.5);opacity:0;}
+}
+
+/* ============================================================
+   PAGE 1 — MORNING
+============================================================ */
+#page1{
+  background:linear-gradient(155deg,#FDF1E8 0%,#FAE8E8 45%,#F2E8F8 100%);
+  align-items:center;justify-content:center;
+  text-align:center;padding:60px 24px 48px;
+}
+#page1::before{
+  content:'';position:absolute;
+  width:700px;height:700px;border-radius:50%;
+  background:radial-gradient(circle,rgba(232,116,138,.1) 0%,transparent 70%);
+  top:-280px;right:-200px;
+  animation:orb1 9s ease-in-out infinite;
+}
+#page1::after{
+  content:'';position:absolute;
+  width:500px;height:500px;border-radius:50%;
+  background:radial-gradient(circle,rgba(212,149,106,.09) 0%,transparent 70%);
+  bottom:-150px;left:-150px;
+  animation:orb2 12s ease-in-out infinite;
+}
+@keyframes orb1{0%,100%{transform:scale(1);}50%{transform:scale(1.18) translate(-25px,18px);}}
+@keyframes orb2{0%,100%{transform:scale(1);}50%{transform:scale(1.22) translate(18px,-18px);}}
+
+.sun-wrap{position:relative;width:120px;height:120px;margin:0 auto 36px;}
+.sun-rays{
+  position:absolute;inset:-20px;
+  border-radius:50%;
+  background:conic-gradient(from 0deg,transparent 0%,rgba(255,219,129,.4) 5%,transparent 10%,rgba(255,219,129,.4) 15%,transparent 20%,rgba(255,219,129,.4) 25%,transparent 30%,rgba(255,219,129,.4) 35%,transparent 40%,rgba(255,219,129,.4) 45%,transparent 50%,rgba(255,219,129,.4) 55%,transparent 60%,rgba(255,219,129,.4) 65%,transparent 70%,rgba(255,219,129,.4) 75%,transparent 80%,rgba(255,219,129,.4) 85%,transparent 90%,rgba(255,219,129,.4) 95%,transparent 100%);
+  animation:spinSun 12s linear infinite;
+  opacity:.7;
+}
+@keyframes spinSun{from{transform:rotate(0);}to{transform:rotate(360deg);}}
+.sun-core{
+  position:absolute;inset:20px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#FFDB81,#F7A86E);
+  display:flex;align-items:center;justify-content:center;
+  font-size:2.8rem;
+  animation:sunPulse 3s ease-in-out infinite;
+  box-shadow:0 0 40px rgba(247,168,110,.35);
+}
+@keyframes sunPulse{0%,100%{box-shadow:0 0 0 0 rgba(247,168,110,.5),0 0 40px rgba(247,168,110,.2);}50%{box-shadow:0 0 0 22px rgba(247,168,110,0),0 0 60px rgba(247,168,110,.4);}}
+
+.p1-tag{
+  font-family:'Playfair Display',serif;font-style:italic;
+  font-size:.9rem;color:var(--soft);
+  letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px;
+}
+.p1-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(2.8rem,8vw,5rem);
+  color:var(--deep);line-height:1.05;margin-bottom:28px;
+}
+.p1-title em{color:var(--rose);font-style:italic;}
+
+.msg-card{
+  background:rgba(255,255,255,.78);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(232,116,138,.15);
+  border-radius:28px;padding:28px 32px;
+  max-width:540px;margin:0 auto 32px;
+  text-align:left;position:relative;
+}
+.msg-card::before{
+  content:'"';font-family:'Playfair Display',serif;
+  font-size:9rem;color:var(--blush);opacity:.2;
+  position:absolute;top:-28px;left:12px;line-height:1;
+}
+.msg-card p{
+  font-size:1rem;line-height:1.9;
+  color:var(--mid);font-weight:400;position:relative;z-index:1;
+}
+.msg-card p strong{color:var(--deep);font-weight:700;}
+
+.song-pill{
+  display:inline-flex;align-items:center;gap:10px;
+  background:var(--deep);color:white;
+  padding:13px 24px;border-radius:50px;
+  font-size:.88rem;font-weight:600;font-family:'Nunito',sans-serif;
+  cursor:pointer;border:none;
+  transition:all .3s;margin-bottom:22px;text-decoration:none;
+}
+.song-pill:hover{background:var(--rose);transform:translateY(-3px);box-shadow:0 10px 28px rgba(232,116,138,.4);}
+.song-dot{width:9px;height:9px;background:#1DB954;border-radius:50%;animation:sdot 1.3s ease infinite;}
+@keyframes sdot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.3;transform:scale(.7);}}
+
+/* ============================================================
+   PAGE 2 — SNAKE GAME
+============================================================ */
+#page2{
+  background:radial-gradient(ellipse at 50% 0%,#1E0A35 0%,#0D0D1A 60%);
+  color:white;align-items:center;justify-content:center;
+  padding:40px 24px 48px;
+}
+#page2::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 600px 400px at 80% 20%,rgba(168,85,247,.14) 0%,transparent 65%),
+    radial-gradient(ellipse 500px 350px at 10% 75%,rgba(232,116,138,.1) 0%,transparent 65%);
+}
+
+.game-hdr{text-align:center;margin-bottom:20px;position:relative;}
+.game-badge{
+  display:inline-block;
+  background:rgba(168,85,247,.22);
+  border:1px solid rgba(168,85,247,.35);
+  color:#C084FC;padding:6px 18px;border-radius:50px;
+  font-size:.76rem;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;margin-bottom:10px;
+}
+.game-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.9rem,5vw,3rem);
+  color:white;line-height:1.1;
+}
+.game-title em{color:#C084FC;font-style:italic;}
+.game-sub{color:rgba(255,255,255,.45);font-size:.88rem;margin-top:6px;}
+
+.game-stats-row{
+  display:flex;gap:12px;justify-content:center;margin-bottom:18px;flex-wrap:wrap;
+}
+.stat-pill{
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:50px;padding:8px 20px;
+  font-size:.84rem;color:rgba(255,255,255,.65);
+  font-weight:600;
+}
+.stat-pill span{color:white;}
+
+/* Snake canvas wrapper */
+#snakeWrap{
+  position:relative;
+  display:inline-block;
+  border-radius:20px;
+  overflow:hidden;
+  box-shadow:0 0 60px rgba(168,85,247,.25),0 0 0 1px rgba(168,85,247,.2);
+}
+#snakeCanvas{
+  display:block;
+  background:#0A0618;
+}
+#snakeOverlay{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  background:rgba(10,6,24,.88);
+  border-radius:20px;
+  transition:opacity .4s;
+}
+#snakeOverlay.hidden{opacity:0;pointer-events:none;}
+#snakeOverlay h3{
+  font-family:'Playfair Display',serif;font-style:italic;
+  font-size:1.7rem;color:white;margin-bottom:8px;
+}
+#snakeOverlay p{color:rgba(255,255,255,.55);font-size:.88rem;margin-bottom:22px;}
+.start-btn{
+  background:linear-gradient(135deg,#C084FC,#E8748A);
+  color:white;border:none;border-radius:50px;
+  padding:13px 32px;font-family:'Nunito',sans-serif;
+  font-size:.95rem;font-weight:700;cursor:pointer;
+  transition:all .3s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 6px 24px rgba(192,132,252,.35);
+}
+.start-btn:hover{transform:translateY(-3px) scale(1.05);}
+
+/* D-pad for mobile */
+#dpad{
+  display:none;
+  margin-top:16px;
+  grid-template-columns:repeat(3,44px);
+  grid-template-rows:repeat(3,44px);
+  gap:6px;
+  justify-content:center;
+}
+@media(max-width:600px){#dpad{display:grid;}}
+.dpad-btn{
+  width:44px;height:44px;
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:10px;color:white;font-size:1.1rem;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:background .15s;user-select:none;
+}
+.dpad-btn:active{background:rgba(168,85,247,.4);}
+.dpad-center{background:transparent;border:none;}
+
+.snake-win-msg{
+  text-align:center;margin-top:20px;
+  display:none;animation:fadeSlideUp .6s ease forwards;
+}
+.snake-win-msg.show{display:block;}
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+.snake-win-msg p{color:rgba(255,255,255,.65);margin-bottom:16px;font-size:.95rem;}
+
+.reset-btn{
+  background:transparent;
+  border:1px solid rgba(255,255,255,.2);
+  color:rgba(255,255,255,.5);
+  padding:10px 22px;border-radius:50px;
+  font-family:'Nunito',sans-serif;font-size:.84rem;font-weight:600;
+  cursor:pointer;transition:all .3s;margin-top:10px;
+}
+.reset-btn:hover{border-color:rgba(255,255,255,.5);color:white;}
+
+/* ============================================================
+   PAGE 3 — SORRY
+============================================================ */
+#page3{
+  background:linear-gradient(180deg,#FDF6EE 0%,#FAF0E8 100%);
+  padding:70px 24px 60px;
+}
+.p3-inner{max-width:660px;margin:0 auto;}
+
+.section-label{
+  display:inline-block;font-size:.75rem;font-weight:700;
+  letter-spacing:.16em;text-transform:uppercase;
+  color:var(--rose);margin-bottom:16px;
+  border-bottom:2px solid var(--rose);padding-bottom:4px;
+}
+.p3-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(2.2rem,6vw,3.5rem);
+  color:var(--deep);line-height:1.1;margin-bottom:12px;
+}
+.p3-title em{color:var(--rose);font-style:italic;}
+.p3-lead{color:var(--mid);font-size:1.03rem;line-height:1.75;margin-bottom:44px;}
+
+.sorry-list{list-style:none;margin-bottom:44px;}
+.sorry-item{
+  display:flex;gap:20px;align-items:flex-start;
+  padding:24px 0;border-bottom:1px solid rgba(122,92,92,.1);
+  opacity:0;transform:translateX(-24px);
+  transition:opacity .55s ease,transform .55s ease;
+}
+.sorry-item.visible{opacity:1;transform:translateX(0);}
+.sorry-num{
+  font-family:'Playfair Display',serif;font-size:2rem;
+  color:var(--blush);line-height:1;flex-shrink:0;width:44px;
+}
+.sorry-text h4{font-size:1rem;font-weight:700;color:var(--deep);margin-bottom:6px;}
+.sorry-text p{font-size:.92rem;color:var(--mid);line-height:1.72;}
+
+.promise-box{
+  background:linear-gradient(135deg,var(--deep),#5C3030);
+  border-radius:28px;padding:36px;color:white;
+  text-align:center;margin-bottom:44px;
+  position:relative;overflow:hidden;
+}
+.promise-box::before{
+  content:'';position:absolute;
+  width:350px;height:350px;border-radius:50%;
+  background:rgba(255,255,255,.04);
+  top:-180px;right:-80px;
+}
+.promise-box::after{
+  content:'';position:absolute;
+  width:250px;height:250px;border-radius:50%;
+  background:rgba(232,116,138,.07);
+  bottom:-120px;left:-60px;
+}
+.promise-box h3{
+  font-family:'Playfair Display',serif;font-style:italic;
+  font-size:1.6rem;margin-bottom:12px;position:relative;z-index:1;
+}
+.promise-box p{font-size:.94rem;opacity:.78;line-height:1.75;position:relative;z-index:1;}
+
+/* ============================================================
+   PAGE 4 — MOTIVATION
+============================================================ */
+#page4{background:#FDF6EE;padding:70px 24px 60px;}
+.p4-inner{max-width:700px;margin:0 auto;}
+.p4-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(2.2rem,6vw,3.5rem);
+  color:var(--deep);line-height:1.1;margin-bottom:10px;
+}
+.p4-title em{color:var(--gold);font-style:italic;}
+.p4-lead{color:var(--mid);font-size:1rem;margin-bottom:44px;line-height:1.75;}
+
+.motiv-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);
+  gap:16px;margin-bottom:44px;
+}
+.motiv-card{
+  background:white;border-radius:24px;padding:26px;
+  border:1px solid rgba(122,92,92,.08);
+  opacity:0;transform:translateY(24px) scale(.97);
+  transition:opacity .45s ease,transform .45s ease,box-shadow .3s;
+}
+.motiv-card.visible{opacity:1;transform:translateY(0) scale(1);}
+.motiv-card:hover{transform:translateY(-5px) scale(1.01);box-shadow:0 14px 36px rgba(122,92,92,.1);}
+.motiv-icon{font-size:2rem;margin-bottom:14px;display:block;}
+.motiv-card h4{font-size:.97rem;font-weight:700;color:var(--deep);margin-bottom:7px;}
+.motiv-card p{font-size:.84rem;color:var(--mid);line-height:1.65;}
+
+.wide-banner{
+  background:linear-gradient(135deg,#E8748A,#D4956A);
+  border-radius:28px;padding:36px;text-align:center;
+  color:white;margin-bottom:44px;
+  position:relative;overflow:hidden;
+}
+.wide-banner::before{
+  content:'"';font-family:'Playfair Display',serif;
+  font-size:12rem;opacity:.08;position:absolute;
+  top:-40px;left:10px;line-height:1;color:white;
+}
+.wide-banner p{
+  font-size:1.05rem;line-height:1.85;opacity:.94;
+  position:relative;z-index:1;
+}
+.wide-banner strong{font-weight:700;opacity:1;}
+
+/* ============================================================
+   PAGE 5 — FINAL
+============================================================ */
+#page5{
+  background:linear-gradient(155deg,#1A1025 0%,#2D1525 50%,#3D2010 100%);
+  color:white;align-items:center;justify-content:center;
+  padding:60px 24px;text-align:center;overflow:hidden;
+}
+#page5::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 800px 600px at 50% 35%,rgba(232,116,138,.1) 0%,transparent 60%);
+}
+#page5::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 500px 400px at 20% 80%,rgba(192,132,252,.08) 0%,transparent 60%);
+}
+
+.final-inner{max-width:600px;position:relative;z-index:1;}
+
+.petal-ring{
+  width:110px;height:110px;border-radius:50%;
+  background:linear-gradient(135deg,#E8748A,#D4956A);
+  margin:0 auto 36px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:3rem;
+  animation:floatAnim 3.5s ease-in-out infinite;
+  box-shadow:0 0 70px rgba(232,116,138,.35);
+  position:relative;
+}
+.petal-ring::before{
+  content:'';position:absolute;inset:-8px;
+  border-radius:50%;
+  border:1.5px dashed rgba(232,116,138,.4);
+  animation:spinSlow 8s linear infinite;
+}
+@keyframes floatAnim{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+@keyframes spinSlow{from{transform:rotate(0);}to{transform:rotate(360deg);}}
+
+.final-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(2.4rem,7vw,4.2rem);
+  color:white;line-height:1.05;margin-bottom:28px;
+}
+.final-title em{color:var(--blush);font-style:italic;}
+
+.final-letter{
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:28px;padding:32px 34px;
+  text-align:left;margin-bottom:36px;
+  backdrop-filter:blur(10px);
+}
+.final-letter p{
+  font-size:.97rem;line-height:1.88;
+  color:rgba(255,255,255,.75);margin-bottom:18px;
+}
+.final-letter p:last-child{margin-bottom:0;}
+.final-letter strong{color:white;font-weight:700;}
+
+.signature{
+  font-family:'Playfair Display',serif;font-style:italic;
+  font-size:1.4rem;color:var(--blush);margin-bottom:36px;
+}
+
+.celebrate-btn{
+  display:inline-flex;align-items:center;gap:10px;
+  background:linear-gradient(135deg,#E8748A,#C084FC);
+  color:white;padding:17px 42px;border-radius:50px;
+  font-size:1rem;font-weight:700;font-family:'Nunito',sans-serif;
+  cursor:pointer;border:none;
+  transition:all .35s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 6px 32px rgba(232,116,138,.4);
+  letter-spacing:.02em;
+}
+.celebrate-btn:hover{transform:translateY(-5px) scale(1.04);box-shadow:0 16px 48px rgba(232,116,138,.5);}
+
+.restart-link{
+  display:inline-flex;align-items:center;gap:8px;
+  color:rgba(255,255,255,.28);font-size:.82rem;font-weight:600;
+  cursor:pointer;border:none;background:none;
+  font-family:'Nunito',sans-serif;
+  transition:color .3s;margin-top:14px;padding:8px;
+}
+.restart-link:hover{color:rgba(255,255,255,.55);}
+
+/* ============================================================
+   REVEAL
+============================================================ */
+.reveal{
+  opacity:0;transform:translateY(26px);
+  transition:opacity .65s ease,transform .65s ease;
+}
+.reveal.show{opacity:1;transform:translateY(0);}
+
+@media(max-width:500px){
+  .motiv-grid{grid-template-columns:1fr;}
+  .msg-card{padding:22px 20px;}
+  .final-letter{padding:24px 22px;}
+}
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+<div id="cursor"></div>
+<div id="cursorRing"></div>
+<div id="transOverlay"><div class="overlay-circle" id="oc"></div></div>
+
+<!-- NAV -->
+<div id="navBar">
+  <div class="nav-dot active" onclick="goTo(1)"></div>
+  <div class="nav-dot" onclick="goTo(2)"></div>
+  <div class="nav-dot" onclick="goTo(3)"></div>
+  <div class="nav-dot" onclick="goTo(4)"></div>
+  <div class="nav-dot" onclick="goTo(5)"></div>
+</div>
+
+<!-- ======================== PAGE 1 — MORNING ======================== -->
+<div class="page active" id="page1">
+  <div class="sun-wrap reveal">
+    <div class="sun-rays"></div>
+    <div class="sun-core">☀️</div>
+  </div>
+  <p class="p1-tag reveal" style="transition-delay:.08s">A special morning</p>
+  <h1 class="p1-title reveal" style="transition-delay:.16s">Good<br><em>Morning</em> ✨</h1>
+  <div class="msg-card reveal" style="transition-delay:.24s">
+    <p>
+      Every single morning, the first thought that shows up is <strong>you</strong>. Your smile, your energy, the way you make ordinary moments feel like something worth remembering.
+      <br><br>
+      You are the best part of every day — and this little surprise is my way of saying that out loud. Enjoy every page, there is something special waiting for you 🌸
+    </p>
+  </div>
+  <a class="song-pill reveal" href="https://www.youtube.com/watch?v=V7LwfY5U5WI" target="_blank" rel="noopener" style="transition-delay:.32s">
+    <span class="song-dot"></span>
+    Play Our Song on YouTube ♪
+  </a>
+  <br><br>
+  <button class="cta-btn reveal" onclick="goTo(2)" style="transition-delay:.4s">
+    Open Your Surprise <span class="arrow">→</span>
+  </button>
+</div>
+
+<!-- ======================== PAGE 2 — SNAKE GAME ======================== -->
+<div class="page" id="page2">
+  <div class="back-row dark-back">
+    <button class="back-btn" onclick="goTo(1)">← Back</button>
+  </div>
+  <div class="game-hdr">
+    <div class="game-badge">🕹 Childhood Classic</div>
+    <h2 class="game-title"><em>Snake</em> Game 🐍</h2>
+    <p class="game-sub">Eat the fruit, grow longer — reach 8 fruits to unlock the next surprise!</p>
+  </div>
+  <div class="game-stats-row">
+    <div class="stat-pill">Score: <span id="snakeScore">0</span></div>
+    <div class="stat-pill">Best: <span id="snakeBest">0</span></div>
+    <div class="stat-pill">Fruits: <span id="fruitCount">0</span>/8</div>
+  </div>
+  <div id="snakeWrap">
+    <canvas id="snakeCanvas" width="320" height="320"></canvas>
+    <div id="snakeOverlay">
+      <h3>Snake 🐍</h3>
+      <p>Use arrow keys or the D-pad below<br>Eat 8 fruits to continue!</p>
+      <button class="start-btn" onclick="startSnake()">▶ Start Game</button>
+    </div>
+  </div>
+  <!-- D-pad for mobile -->
+  <div id="dpad">
+    <div></div>
+    <button class="dpad-btn" onclick="dpadPress('ArrowUp')">▲</button>
+    <div></div>
+    <button class="dpad-btn" onclick="dpadPress('ArrowLeft')">◀</button>
+    <div class="dpad-center"></div>
+    <button class="dpad-btn" onclick="dpadPress('ArrowRight')">▶</button>
+    <div></div>
+    <button class="dpad-btn" onclick="dpadPress('ArrowDown')">▼</button>
+    <div></div>
+  </div>
+  <div class="snake-win-msg" id="snakeWin">
+    <p>You're amazing! 🎉 Onwards to the next chapter...</p>
+    <button class="cta-btn" onclick="goTo(3)" style="background:linear-gradient(135deg,#C084FC,#E8748A);">
+      Continue <span class="arrow">→</span>
+    </button>
+    <br>
+    <button class="reset-btn" onclick="resetSnake()">↺ Play again</button>
+  </div>
+  <div id="snakeRunning">
+    <button class="reset-btn" style="margin-top:16px;" onclick="resetSnake()">↺ Restart</button>
+  </div>
+</div>
+
+<!-- ======================== PAGE 3 — SORRY ======================== -->
+<div class="page" id="page3">
+  <div class="back-row">
+    <button class="back-btn" onclick="goTo(2)">← Back</button>
+  </div>
+  <div class="p3-inner">
+    <span class="section-label reveal">From me</span>
+    <h2 class="p3-title reveal" style="transition-delay:.1s">I'm <em>sorry.</em><br>Truly.</h2>
+    <p class="p3-lead reveal" style="transition-delay:.2s">
+      There are things I should have said a long time ago. Things I carried quietly but never brought to you. Here they are — honestly, completely.
+    </p>
+    <ul class="sorry-list">
+      <li class="sorry-item">
+        <span class="sorry-num">01</span>
+        <div class="sorry-text">
+          <h4>For the times I wasn't fully present</h4>
+          <p>There were moments you needed me — really needed me — and I was somewhere else in my head. That wasn't fair to you, and I'm sorry.</p>
+        </div>
+      </li>
+      <li class="sorry-item">
+        <span class="sorry-num">02</span>
+        <div class="sorry-text">
+          <h4>For the careless words</h4>
+          <p>Sometimes I said things without thinking, without realising how they'd land. You deserved more gentleness than I gave.</p>
+        </div>
+      </li>
+      <li class="sorry-item">
+        <span class="sorry-num">03</span>
+        <div class="sorry-text">
+          <h4>For taking your support for granted</h4>
+          <p>You have been my biggest supporter through everything. I didn't always acknowledge that enough, and I wish I had.</p>
+        </div>
+      </li>
+      <li class="sorry-item">
+        <span class="sorry-num">04</span>
+        <div class="sorry-text">
+          <h4>For every small thing I got wrong</h4>
+          <p>The big mistakes are easy to name. But it's also the small ones — the thoughtless moments — that I carry too. All of them.</p>
+        </div>
+      </li>
+      <li class="sorry-item">
+        <span class="sorry-num">05</span>
+        <div class="sorry-text">
+          <h4>For not saying this sooner</h4>
+          <p>This is long overdue. You deserved to hear it many times before today. I'm saying it now, and I mean every word.</p>
+        </div>
+      </li>
+    </ul>
+    <div class="promise-box reveal">
+      <h3>One Promise</h3>
+      <p>Not saying sorry to feel better. Saying it because I see you — how patient you've been, how much you've given — and you deserve someone who truly shows up. That's what I'm working toward, every day.</p>
+    </div>
+    <div style="text-align:center;">
+      <button class="cta-btn" onclick="goTo(4)">
+        See what you mean to me <span class="arrow">→</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== PAGE 4 — MOTIVATION ======================== -->
+<div class="page" id="page4">
+  <div class="back-row">
+    <button class="back-btn" onclick="goTo(3)">← Back</button>
+  </div>
+  <div class="p4-inner">
+    <span class="section-label reveal">What you are to me</span>
+    <h2 class="p4-title reveal" style="transition-delay:.1s">You keep me<br><em>going.</em> 🌟</h2>
+    <p class="p4-lead reveal" style="transition-delay:.2s">You've always been in my corner. This is me telling you exactly what that means.</p>
+    <div class="motiv-grid">
+      <div class="motiv-card">
+        <span class="motiv-icon">🧭</span>
+        <h4>My compass</h4>
+        <p>Whenever I'm lost or unsure, thinking of your belief in me points me the right way.</p>
+      </div>
+      <div class="motiv-card">
+        <span class="motiv-icon">🔥</span>
+        <h4>My drive</h4>
+        <p>You make me want to be a better version of myself — because you deserve the best of me.</p>
+      </div>
+      <div class="motiv-card">
+        <span class="motiv-icon">🎮</span>
+        <h4>My player two</h4>
+        <p>Every adventure, every challenge, every silly moment — better with you beside me.</p>
+      </div>
+      <div class="motiv-card">
+        <span class="motiv-icon">🛡️</span>
+        <h4>My safe place</h4>
+        <p>When the world feels like too much, you're the one place where I can breathe and just be.</p>
+      </div>
+      <div class="motiv-card">
+        <span class="motiv-icon">⭐</span>
+        <h4>My standard</h4>
+        <p>You show every day what real kindness, patience and strength look like. You set the bar.</p>
+      </div>
+      <div class="motiv-card">
+        <span class="motiv-icon">🌅</span>
+        <h4>My reason</h4>
+        <p>On the hardest days, you're the reason I get up, keep going, and choose to try again.</p>
+      </div>
+    </div>
+    <div class="wide-banner reveal">
+      <p>"You never asked for recognition. You just <strong>showed up</strong> — quietly, consistently, always. That kind of support is rare. You are rare. And I don't want to spend another day without telling you that."</p>
+    </div>
+    <div style="text-align:center;">
+      <button class="cta-btn" onclick="goTo(5)">
+        One final message <span class="arrow">→</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== PAGE 5 — FINAL ======================== -->
+<div class="page" id="page5">
+  <div class="back-row dark-back">
+    <button class="back-btn" onclick="goTo(4)">← Back</button>
+  </div>
+  <div class="final-inner">
+    <div class="petal-ring">🌸</div>
+    <h2 class="final-title">Always <em>with you.</em></h2>
+    <div class="final-letter">
+      <p>If you're reading this, it means you made it through the whole thing — the morning message, the snake game, everything. Thank you for that.</p>
+      <p>I made this because words in person sometimes get stuck. But every single thing on these pages? <strong>Real. True. Meant.</strong></p>
+      <p>You have supported me through things I wasn't sure I could get through. You cheered for me when I didn't believe in myself. You stayed when it would have been easier to go.</p>
+      <p>I see all of it. I appreciate all of it. And I am going to keep showing up for you — better, more present, more grateful — because you deserve nothing less.</p>
+      <p>Thank you for being <strong>you.</strong> This is my promise to never take that for granted again. 🌸</p>
+    </div>
+    <p class="signature">— Yours, always ✨</p>
+    <button class="celebrate-btn" onclick="celebrate()">🎉 Celebrate This Moment</button>
+    <br>
+    <button class="restart-link" onclick="goTo(1)">↺ Read from beginning</button>
+  </div>
+</div>
+
+<script>
+/* ===================== CURSOR ===================== */
+const cur = document.getElementById('cursor');
+const cring = document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+(function animRing(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;cring.style.left=rx+'px';cring.style.top=ry+'px';requestAnimationFrame(animRing);})();
+document.addEventListener('mousedown',()=>{cur.style.width='8px';cur.style.height='8px';});
+document.addEventListener('mouseup',()=>{cur.style.width='14px';cur.style.height='14px';});
+
+/* ===================== PARTICLES ===================== */
+const pc=document.getElementById('particles'),pctx=pc.getContext('2d');
+let pts=[];
+function resizePC(){pc.width=innerWidth;pc.height=innerHeight;}
+resizePC();window.addEventListener('resize',resizePC);
+for(let i=0;i<50;i++) pts.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*2+.5,dx:(Math.random()-.5)*.35,dy:(Math.random()-.5)*.35,a:Math.random()*.4+.08});
+(function animPC(){
+  pctx.clearRect(0,0,pc.width,pc.height);
+  pts.forEach(p=>{
+    pctx.beginPath();pctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    pctx.fillStyle=`rgba(232,116,138,${p.a})`;pctx.fill();
+    p.x+=p.dx;p.y+=p.dy;
+    if(p.x<0||p.x>pc.width)p.dx*=-1;
+    if(p.y<0||p.y>pc.height)p.dy*=-1;
+  });
+  requestAnimationFrame(animPC);
+})();
+
+/* ===================== PAGE TRANSITIONS ===================== */
+let currentPage=1;
+const darkPages=[2,5];
+const pageColors={1:'#FAE8E8',2:'#1A1025',3:'#FDF6EE',4:'#FDF6EE',5:'#1A1025'};
+
+function goTo(n){
+  if(n===currentPage) return;
+  const fromPage=currentPage;
+  const color=pageColors[n];
+  const oc=document.getElementById('oc');
+  
+  // Ripple from center
+  oc.style.cssText=`width:0;height:0;left:50%;top:50%;background:${color};position:absolute;transform:translate(-50%,-50%);border-radius:50%;transition:none;`;
+  
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      oc.style.transition='width 0.55s cubic-bezier(0.4,0,0.2,1),height 0.55s cubic-bezier(0.4,0,0.2,1)';
+      const sz=Math.max(innerWidth,innerHeight)*2.6+'px';
+      oc.style.width=sz;oc.style.height=sz;
+      
+      setTimeout(()=>{
+        // Switch page
+        document.getElementById('page'+fromPage).classList.remove('active');
+        currentPage=n;
+        const pg=document.getElementById('page'+n);
+        pg.classList.add('active','page-entering');
+        window.scrollTo(0,0);
+        updateNav();
+        triggerReveal();
+        if(n===3) triggerSorry();
+        if(n===4) triggerMotiv();
+        
+        // Fade out overlay
+        setTimeout(()=>{
+          oc.style.transition='opacity 0.4s ease';
+          oc.style.opacity='0';
+          setTimeout(()=>{
+            oc.style.opacity='';oc.style.width='0';oc.style.height='0';oc.style.transition='none';
+            pg.classList.remove('page-entering');
+          },420);
+        },80);
+      },300);
+    });
+  });
+}
+
+function updateNav(){
+  const bar=document.getElementById('navBar');
+  bar.className='nav-bar'+(darkPages.includes(currentPage)?' dark-nav':'');
+  bar.querySelectorAll('.nav-dot').forEach((d,i)=>{
+    d.className='nav-dot'+(i+1===currentPage?' active':(i+1<currentPage?' done':''));
+  });
+}
+
+function triggerReveal(){
+  setTimeout(()=>{
+    document.querySelectorAll('#page'+currentPage+' .reveal').forEach((el,i)=>{
+      setTimeout(()=>el.classList.add('show'),i*90);
+    });
+  },120);
+}
+function triggerSorry(){
+  setTimeout(()=>{
+    document.querySelectorAll('.sorry-item').forEach((el,i)=>{
+      setTimeout(()=>el.classList.add('visible'),180+i*110);
+    });
+  },280);
+}
+function triggerMotiv(){
+  setTimeout(()=>{
+    document.querySelectorAll('.motiv-card').forEach((el,i)=>{
+      setTimeout(()=>el.classList.add('visible'),160+i*75);
+    });
+  },280);
+}
+setTimeout(triggerReveal,300);
+
+/* ===================== SNAKE GAME ===================== */
+const SC=document.getElementById('snakeCanvas');
+const SCX=SC.getContext('2d');
+const GRID=20, COLS=16, ROWS=16;
+SC.width=COLS*GRID; SC.height=ROWS*GRID;
+
+const FRUITS=['🍎','🍊','🍋','🍇','🍓','🫐','🍑','🍒'];
+let snake,dir,nextDir,food,snakeScore=0,snakeBest=0,fruitEaten=0,gameLoop,gameOver=false,gameStarted=false;
+
+function randCell(){return{x:Math.floor(Math.random()*COLS),y:Math.floor(Math.random()*ROWS)};}
+function placeFood(){
+  let f;
+  do{f=randCell();}while(snake.some(s=>s.x===f.x&&s.y===f.y));
+  food=f;food.emoji=FRUITS[Math.floor(Math.random()*FRUITS.length)];
+}
+
+function initSnake(){
+  snake=[{x:8,y:8},{x:7,y:8},{x:6,y:8}];
+  dir={x:1,y:0};nextDir={x:1,y:0};
+  snakeScore=0;fruitEaten=0;gameOver=false;
+  document.getElementById('snakeScore').textContent=0;
+  document.getElementById('fruitCount').textContent=0;
+  placeFood();
+}
+
+function drawSnake(){
+  SCX.clearRect(0,0,SC.width,SC.height);
+  
+  // Grid dots
+  SCX.fillStyle='rgba(255,255,255,.03)';
+  for(let x=0;x<COLS;x++) for(let y=0;y<ROWS;y++){
+    SCX.beginPath();SCX.arc(x*GRID+GRID/2,y*GRID+GRID/2,1,0,Math.PI*2);SCX.fill();
+  }
+  
+  // Snake body
+  snake.forEach((seg,i)=>{
+    const isHead=i===0;
+    const t=i/snake.length;
+    // gradient from head (bright) to tail (dim)
+    const alpha=isHead?1:Math.max(0.3,1-t*0.65);
+    SCX.save();
+    SCX.shadowBlur=isHead?18:6;
+    SCX.shadowColor=isHead?'rgba(192,132,252,.8)':'rgba(232,116,138,.4)';
+    
+    const r=isHead?GRID*.44:GRID*.38;
+    const grd=SCX.createRadialGradient(seg.x*GRID+GRID/2,seg.y*GRID+GRID/2,0,seg.x*GRID+GRID/2,seg.y*GRID+GRID/2,r+2);
+    if(isHead){
+      grd.addColorStop(0,'rgba(220,160,255,'+alpha+')');
+      grd.addColorStop(1,'rgba(168,85,247,'+alpha+')');
+    } else {
+      grd.addColorStop(0,'rgba(248,167,181,'+alpha+')');
+      grd.addColorStop(1,'rgba(232,116,138,'+alpha+')');
+    }
+    SCX.fillStyle=grd;
+    SCX.beginPath();
+    SCX.roundRect(seg.x*GRID+2,seg.y*GRID+2,GRID-4,GRID-4,isHead?7:5);
+    SCX.fill();
+    SCX.restore();
+    
+    // Eyes on head
+    if(isHead){
+      SCX.fillStyle='rgba(255,255,255,.9)';
+      const ex=dir.x===0?[-3,3]:[dir.x>0?5:1,dir.x>0?5:1];
+      const ey=dir.y===0?[-3,3]:[dir.y>0?5:1,dir.y>0?5:1];
+      if(dir.x!==0){
+        const bx=seg.x*GRID+GRID/2+(dir.x>0?4:-4);
+        SCX.beginPath();SCX.arc(bx,seg.y*GRID+GRID/2-3,2,0,Math.PI*2);SCX.fill();
+        SCX.beginPath();SCX.arc(bx,seg.y*GRID+GRID/2+3,2,0,Math.PI*2);SCX.fill();
+      } else {
+        const by=seg.y*GRID+GRID/2+(dir.y>0?4:-4);
+        SCX.beginPath();SCX.arc(seg.x*GRID+GRID/2-3,by,2,0,Math.PI*2);SCX.fill();
+        SCX.beginPath();SCX.arc(seg.x*GRID+GRID/2+3,by,2,0,Math.PI*2);SCX.fill();
+      }
+    }
+  });
+  
+  // Food
+  if(food){
+    SCX.save();
+    SCX.shadowBlur=20;SCX.shadowColor='rgba(255,220,100,.6)';
+    SCX.font=(GRID*.78)+'px serif';
+    SCX.textAlign='center';SCX.textBaseline='middle';
+    SCX.fillText(food.emoji,food.x*GRID+GRID/2,food.y*GRID+GRID/2+1);
+    SCX.restore();
+  }
+}
+
+function tickSnake(){
+  dir={...nextDir};
+  const head={x:snake[0].x+dir.x,y:snake[0].y+dir.y};
+  
+  // Wall collision
+  if(head.x<0||head.x>=COLS||head.y<0||head.y>=ROWS){endSnake();return;}
+  // Self collision
+  if(snake.some(s=>s.x===head.x&&s.y===head.y)){endSnake();return;}
+  
+  snake.unshift(head);
+  
+  if(head.x===food.x&&head.y===food.y){
+    snakeScore+=10;fruitEaten++;
+    document.getElementById('snakeScore').textContent=snakeScore;
+    document.getElementById('fruitCount').textContent=fruitEaten;
+    if(snakeScore>snakeBest){snakeBest=snakeScore;document.getElementById('snakeBest').textContent=snakeBest;}
+    confetti();
+    if(fruitEaten>=8){winSnake();return;}
+    placeFood();
+  } else {
+    snake.pop();
+  }
+  drawSnake();
+}
+
+function startSnake(){
+  document.getElementById('snakeOverlay').classList.add('hidden');
+  document.getElementById('snakeWin').classList.remove('show');
+  document.getElementById('snakeRunning').style.display='block';
+  initSnake();drawSnake();gameStarted=true;
+  clearInterval(gameLoop);
+  gameLoop=setInterval(tickSnake,140);
+}
+
+function endSnake(){
+  clearInterval(gameLoop);gameOver=true;
+  SCX.save();
+  SCX.fillStyle='rgba(10,6,24,.75)';
+  SCX.fillRect(0,0,SC.width,SC.height);
+  SCX.fillStyle='white';SCX.font='bold 22px Nunito,sans-serif';
+  SCX.textAlign='center';SCX.fillText('Game Over 😅',SC.width/2,SC.height/2-14);
+  SCX.font='14px Nunito,sans-serif';SCX.fillStyle='rgba(255,255,255,.55)';
+  SCX.fillText('Score: '+snakeScore+' | Hit restart to try again',SC.width/2,SC.height/2+16);
+  SCX.restore();
+}
+
+function winSnake(){
+  clearInterval(gameLoop);
+  drawSnake();
+  document.getElementById('snakeWin').classList.add('show');
+  document.getElementById('snakeRunning').style.display='none';
+  confetti();confetti();
+}
+
+function resetSnake(){
+  document.getElementById('snakeOverlay').classList.remove('hidden');
+  document.getElementById('snakeWin').classList.remove('show');
+  document.getElementById('snakeRunning').style.display='block';
+  clearInterval(gameLoop);
+  initSnake();drawSnake();
+  gameStarted=false;
+}
+
+function dpadPress(key){
+  document.dispatchEvent(new KeyboardEvent('keydown',{key}));
+}
+
+document.addEventListener('keydown',e=>{
+  if(!gameStarted||gameOver) return;
+  const map={ArrowUp:{x:0,y:-1},ArrowDown:{x:0,y:1},ArrowLeft:{x:-1,y:0},ArrowRight:{x:1,y:0}};
+  const d=map[e.key];
+  if(d && !(d.x===-dir.x&&d.y===0) && !(d.y===-dir.y&&d.x===0)){
+    nextDir=d;e.preventDefault();
+  }
+});
+
+// Touch swipe for snake
+let ts=null;
+SC.addEventListener('touchstart',e=>{ts=e.touches[0];},{passive:true});
+SC.addEventListener('touchend',e=>{
+  if(!ts||!gameStarted) return;
+  const dx=e.changedTouches[0].clientX-ts.clientX;
+  const dy=e.changedTouches[0].clientY-ts.clientY;
+  if(Math.abs(dx)>Math.abs(dy)){
+    dx>0?dpadPress('ArrowRight'):dpadPress('ArrowLeft');
+  } else {
+    dy>0?dpadPress('ArrowDown'):dpadPress('ArrowUp');
+  }
+},{passive:true});
+
+initSnake();drawSnake();
+
+/* ===================== CONFETTI ===================== */
+function confetti(){
+  const cols=['#E8748A','#D4956A','#C084FC','#FFDB81','#7AE3C3','#74B5E8','#F2A7B5'];
+  for(let i=0;i<70;i++){
+    const el=document.createElement('div');
+    el.className='confetti-piece';
+    const sz=(Math.random()*8+5)+'px';
+    el.style.cssText=`left:${Math.random()*100}vw;width:${sz};height:${sz};background:${cols[~~(Math.random()*cols.length)]};animation-delay:${Math.random()*1.4}s;transform:rotate(${Math.random()*360}deg);border-radius:${Math.random()>.5?'50%':'3px'};`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),5000);
+  }
+}
+function celebrate(){confetti();setTimeout(confetti,400);setTimeout(confetti,800);}
+</script>
+</body>
+</html>
